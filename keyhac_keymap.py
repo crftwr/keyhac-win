@@ -82,6 +82,25 @@ def checkModifier( mod1, mod2 ):
     return True
 
 
+# mod1 に mod2 が含まれていることを確認する
+def hasModifier( mod1, mod2 ):
+
+    _mod1 = mod1 & 0xff
+    _mod2 = mod2 & 0xff
+    _mod1_L = (mod1 & 0xff00) >> 8
+    _mod2_L = (mod2 & 0xff00) >> 8
+    _mod1_R = (mod1 & 0xff0000) >> 16
+    _mod2_R = (mod2 & 0xff0000) >> 16
+
+    if _mod2 & ( _mod1 | _mod1_L | _mod1_R ):
+        return True
+    if _mod2_L & ( _mod1 | _mod1_L ):
+        return True
+    if _mod2_R & ( _mod1 | _mod1_R ):
+        return True
+    return False
+
+
 class KeyCondition:
 
     vk_str_table = {}
@@ -1294,17 +1313,11 @@ class Keymap(ckit.Window):
         # Win と Alt の単体押しのキャンセルが必要かチェック
         # Win の単体押しは スタートメニューが開き、Alt の単体押しは メニューバーにフォーカスが移動してしまう。
         cancel_oneshot_win_alt = False
-        if ( checkModifier( self.virtual_modifier, MODKEY_ALT ) or checkModifier( self.virtual_modifier, MODKEY_WIN ) ) and mod==0:
+        if any((
+            checkModifier( self.virtual_modifier, MODKEY_ALT ) and not hasModifier( mod, MODKEY_ALT),
+            checkModifier( self.virtual_modifier, MODKEY_WIN ) and not hasModifier( mod, MODKEY_WIN ),
+        )):
             cancel_oneshot_win_alt = True
-        elif self.virtual_modifier==0 and ( checkModifier( mod, MODKEY_ALT ) or checkModifier( mod, MODKEY_WIN ) ):
-            cancel_oneshot_win_alt = True
-
-        # モディファイア押す
-        for vk_mod in self.vk_mod_map.items():
-            if vk_mod[1] & MODKEY_USER_ALL : continue
-            if not ( vk_mod[1] & self.virtual_modifier ) and ( vk_mod[1] & mod ):
-                self.input_seq.append( pyauto.KeyDown(vk_mod[0]) )
-                self.virtual_modifier |= vk_mod[1]
 
         # Win と Alt の単体押しをキャンセル
         if cancel_oneshot_win_alt:
@@ -1316,6 +1329,13 @@ class Keymap(ckit.Window):
             if ( vk_mod[1] & self.virtual_modifier ) and not ( vk_mod[1] & mod ):
                 self.input_seq.append( pyauto.KeyUp(vk_mod[0]) )
                 self.virtual_modifier &= ~vk_mod[1]
+
+        # モディファイア押す
+        for vk_mod in self.vk_mod_map.items():
+            if vk_mod[1] & MODKEY_USER_ALL : continue
+            if not ( vk_mod[1] & self.virtual_modifier ) and ( vk_mod[1] & mod ):
+                self.input_seq.append( pyauto.KeyDown(vk_mod[0]) )
+                self.virtual_modifier |= vk_mod[1]
 
     def setInput_FromString( self, s ):
 
@@ -2415,4 +2435,3 @@ class Keymap(ckit.Window):
         ckit.JobQueue.defaultQueue().enqueue(job_item)
 
 ## @} keymap
-
