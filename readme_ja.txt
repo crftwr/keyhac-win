@@ -1,4 +1,9 @@
-﻿Pythonスクリプトでキーカスタマイズ [ Keyhac ]
+﻿【お知らせ】このバージョンの Keyhac は開発を終了しました。Windows 版と
+macOS 版の Keyhac は Keyhac v2 に統合され、開発は以下で継続します。
+https://github.com/crftwr/keyhac
+
+
+Pythonスクリプトでキーカスタマイズ [ Keyhac ]
 
 著作者: craftware
 連絡先: craftware@gmail.com

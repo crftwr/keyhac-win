@@ -1,3 +1,8 @@
+[NOTICE] This version of Keyhac has been retired. Keyhac for Windows and
+Keyhac for macOS have been unified into Keyhac v2, and development continues
+at: https://github.com/crftwr/keyhac
+
+
 "Keyhac" - Python powered key customization tool
 
 Author: craftware
